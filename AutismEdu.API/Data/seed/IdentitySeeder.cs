@@ -1,0 +1,53 @@
+﻿using AutismEdu.API.Models;
+using Microsoft.AspNetCore.Identity;
+
+namespace AutismEdu.API.Data.seed
+{
+    public static class IdentitySeeder
+    {
+        public static async Task SeedIdentityAsync(RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
+        {
+            string[] roles = { "Admin", "User" };
+
+            foreach (var roleName in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                }
+            }
+
+            var adminEmail = "Omar@gmail.com";
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+            if (adminUser == null)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = "OmarAdmin",
+                    Email = adminEmail,
+                    FirstName = "System",
+                    LastName = "Admin",
+                    EmailConfirmed = true,
+                    PhoneNumber = "01200000000"
+                };
+
+                var result = await userManager.CreateAsync(user, "Admin@123");
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "Admin");
+                    Console.WriteLine("Default Admin user created successfully!");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Failed to create default Admin user:");
+                    foreach (var error in result.Errors)
+                        Console.WriteLine($" - {error.Description}");
+                    Console.ResetColor();
+                }
+            }
+        }
+    }
+}
