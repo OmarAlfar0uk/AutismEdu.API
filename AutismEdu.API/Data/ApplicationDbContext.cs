@@ -11,7 +11,15 @@ namespace AutismEdu.API.Data
           : base(options)
         {
         }
-
+        public DbSet<ChildProfile> ChildProfiles { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<PerformanceRecord> PerformanceRecords { get; set; }
+        public DbSet<CommunicationCard> CommunicationCards { get; set; }
+        public DbSet<ChatBotLog> ChatBotLogs { get; set; }
+        public DbSet<ChildActivity> ChildActivities { get; set; }
+        public DbSet<ChildCard> ChildCards { get; set; }
+        public DbSet<TTSContent> TTSContents { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
            

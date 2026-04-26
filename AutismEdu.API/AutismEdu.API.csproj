@@ -21,13 +21,16 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.Speech" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Configurations\" />
     <Folder Include="Data\Migrations\" />
+    <Folder Include="Features\ChildActivity\Add\" />
+    <Folder Include="Features\ChildActivity\Delete\" />
+    <Folder Include="Features\ChildActivity\GetById\" />
+    <Folder Include="Features\ChildActivity\Update\" />
     <Folder Include="SeedData\" />
-    <Folder Include="Shared\" />
   </ItemGroup>
 
 </Project>

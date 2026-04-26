@@ -14,5 +14,8 @@ namespace AutismEdu.API.Models
        
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
+
+        public ICollection<ChildProfile>? ChildProfiles { get; set; }
+
     }
 }

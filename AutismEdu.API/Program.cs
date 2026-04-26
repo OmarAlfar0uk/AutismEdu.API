@@ -154,6 +154,11 @@ namespace AutismEdu.API
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             builder.Services.AddValidatorsFromAssembly(typeof(RegisterCommandValidator).Assembly);
             builder.Services.AddValidatorsFromAssembly(typeof(LoginValidator).Assembly);
+
+            builder.Services.AddScoped<TextToSpeechService>();
+
+            builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+
             #endregion
 
             var app = builder.Build();
@@ -169,7 +174,7 @@ namespace AutismEdu.API
 
             app.UseHttpsRedirection();
 
-            
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
 

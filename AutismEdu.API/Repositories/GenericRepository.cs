@@ -3,6 +3,7 @@ using AutismEdu.API.Data;
 using AutismEdu.API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace AutismEdu.API.Repositories
 {
@@ -51,5 +52,20 @@ namespace AutismEdu.API.Repositories
             entity.UpdatedAt = DateTime.Now;
             _context.Set<TEntity>().Update(entity);
         }
+
+
+        public async Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _context.Set<TEntity>()
+                .Where(predicate)
+                .ToListAsync();
+        }
+
+        public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _context.Set<TEntity>()
+                .AnyAsync(predicate);
+        }
+
     }
 }
