@@ -1,4 +1,5 @@
 ﻿using AutismEdu.API.Models;
+using System.Linq.Expressions;
 
 namespace AutismEdu.API.Contracts
 {
@@ -10,6 +11,10 @@ namespace AutismEdu.API.Contracts
         IQueryable<TEntity> GetAllAsync(bool trackChanges = false);
         Task<TEntity?> GetByIdAsync(Guid id);
 
+
+
+        Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
 
     }
 }

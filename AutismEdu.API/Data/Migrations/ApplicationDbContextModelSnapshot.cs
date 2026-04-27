@@ -22,6 +22,38 @@ namespace AutismEdu.API.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AutismEdu.API.Models.Activity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PdfUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Activities");
+                });
+
             modelBuilder.Entity("AutismEdu.API.Models.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -47,15 +79,20 @@ namespace AutismEdu.API.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -110,6 +147,260 @@ namespace AutismEdu.API.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChatBotLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Attempts")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChildId");
+
+                    b.ToTable("ChatBotLogs");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildActivity", b =>
+                {
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ChildId", "ActivityId");
+
+                    b.HasIndex("ActivityId");
+
+                    b.ToTable("ChildActivities");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildCard", b =>
+                {
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CardId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ChildId", "CardId");
+
+                    b.HasIndex("CardId");
+
+                    b.ToTable("ChildCards");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChildProfiles");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.CommunicationCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommunicationCards");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.Lesson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AudioUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MediaUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.PerformanceRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeSpent")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChildId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("PerformanceRecords");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.TTSContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Lang")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VoiceUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TTSContents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -243,6 +534,85 @@ namespace AutismEdu.API.Data.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AutismEdu.API.Models.ChatBotLog", b =>
+                {
+                    b.HasOne("AutismEdu.API.Models.ChildProfile", "Child")
+                        .WithMany("ChatBotLogs")
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Child");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildActivity", b =>
+                {
+                    b.HasOne("AutismEdu.API.Models.Activity", "Activity")
+                        .WithMany("ChildActivities")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutismEdu.API.Models.ChildProfile", "Child")
+                        .WithMany("ChildActivities")
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Child");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildCard", b =>
+                {
+                    b.HasOne("AutismEdu.API.Models.CommunicationCard", "Card")
+                        .WithMany("ChildCards")
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutismEdu.API.Models.ChildProfile", "Child")
+                        .WithMany("ChildCards")
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("Child");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildProfile", b =>
+                {
+                    b.HasOne("AutismEdu.API.Models.ApplicationUser", "User")
+                        .WithMany("ChildProfiles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.PerformanceRecord", b =>
+                {
+                    b.HasOne("AutismEdu.API.Models.ChildProfile", "Child")
+                        .WithMany("PerformanceRecords")
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutismEdu.API.Models.Lesson", "Lesson")
+                        .WithMany("PerformanceRecords")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Child");
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -292,6 +662,37 @@ namespace AutismEdu.API.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.Activity", b =>
+                {
+                    b.Navigation("ChildActivities");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("ChildProfiles");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.ChildProfile", b =>
+                {
+                    b.Navigation("ChatBotLogs");
+
+                    b.Navigation("ChildActivities");
+
+                    b.Navigation("ChildCards");
+
+                    b.Navigation("PerformanceRecords");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.CommunicationCard", b =>
+                {
+                    b.Navigation("ChildCards");
+                });
+
+            modelBuilder.Entity("AutismEdu.API.Models.Lesson", b =>
+                {
+                    b.Navigation("PerformanceRecords");
                 });
 #pragma warning restore 612, 618
         }

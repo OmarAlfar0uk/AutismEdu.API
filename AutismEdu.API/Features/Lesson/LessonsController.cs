@@ -1,0 +1,112 @@
+﻿using AutismEdu.API.Features.Lesson.Add;
+using AutismEdu.API.Features.Lesson.Delete;
+using AutismEdu.API.Features.Lesson.GenerateLesso;
+using AutismEdu.API.Features.Lesson.GetAll;
+using AutismEdu.API.Features.Lesson.GetById;
+using AutismEdu.API.Features.Lesson.Update;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AutismEdu.API.Features.Lesson
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class LessonsController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+
+        public LessonsController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+        //[HttpPost("{id}/tts")]
+        //public async Task<IActionResult> GenerateSpeech(Guid id)
+        //{
+        //    var audioUrl = await _mediator.Send(new GenerateLessonSpeechCommand { LessonId = id });
+
+        //    return Ok(new
+        //    {
+        //        success = true,
+        //        audioUrl = $"{Request.Scheme}://{Request.Host}{audioUrl}"
+        //    });
+        //}
+
+
+
+
+
+        // GET: api/Lessons
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllLessonsQuery());
+            return Ok(result);
+        }
+
+        // GET: api/Lessons/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetLessonByIdQuery { Id = id });
+
+            if (result is null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        // POST: api/Lessons
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateLessonCommand command)
+        {
+            var id = await _mediator.Send(command);
+
+            return Ok(new
+            {
+                success = true,
+                lessonId = id
+            });
+        }
+
+        // PUT: api/Lessons/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLessonCommand command)
+        {
+            if (id != command.Id)
+                return BadRequest("Id mismatch");
+
+            await _mediator.Send(command);
+
+            return Ok(new { success = true });
+        }
+
+        // DELETE: api/Lessons/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _mediator.Send(new DeleteLessonCommand { Id = id });
+
+            return Ok(new { success = true });
+        }
+
+        // POST: api/Lessons/{id}/tts
+        [HttpPost("{id}/tts")]
+        public async Task<IActionResult> GenerateSpeech(Guid id)
+        {
+            var audioUrl = await _mediator.Send(new GenerateLessonSpeechCommand
+            {
+                LessonId = id
+            });
+
+            var fullUrl = $"{Request.Scheme}://{Request.Host}{audioUrl}";
+
+            return Ok(new
+            {
+                success = true,
+                audioUrl = fullUrl
+            });
+        }
+    }
+
+}
