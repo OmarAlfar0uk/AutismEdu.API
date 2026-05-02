@@ -6,6 +6,7 @@ using AutismEdu.API.Features.Auth.Login;
 using AutismEdu.API.Features.Auth.Logout;
 using AutismEdu.API.Features.Auth.RefreshToken;
 using AutismEdu.API.Features.Auth.Register;
+using AutismEdu.API.Features.Auth.RegisterAdminSpecialist;
 using AutismEdu.API.Features.Auth.UpdateUserProfile;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +35,18 @@ namespace AutismEdu.API.Features.Auth
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             var command = new RegisterCommand(dto);
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("register-admin-specialist")]
+        public async Task<IActionResult> RegisterAdminSpecialist([FromBody] RegisterAdminSpecialistDto dto)
+        {
+            var command = new RegisterAdminSpecialistCommand(dto);
             var result = await _mediator.Send(command);
 
             if (!result.Success)
