@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="MediatR" Version="10.0.1" />
@@ -20,6 +21,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.14.0" />
+    <PackageReference Include="QuestPDF" Version="2026.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
   </ItemGroup>
@@ -30,7 +32,6 @@
     <Folder Include="Features\ChildActivity\Delete\" />
     <Folder Include="Features\ChildActivity\GetById\" />
     <Folder Include="Features\ChildActivity\Update\" />
-    <Folder Include="SeedData\" />
   </ItemGroup>
 
 </Project>

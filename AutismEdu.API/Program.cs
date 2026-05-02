@@ -1,10 +1,12 @@
 using AutismEdu.API.Contracts;
 using AutismEdu.API.Data;
+using AutismEdu.API.Data.seed;
 using AutismEdu.API.Features;
 using AutismEdu.API.Features.Auth;
 using AutismEdu.API.Features.Auth.Login;
 using AutismEdu.API.Features.Auth.Register;
 using AutismEdu.API.Features.Auth.UpdateUserProfile;
+using AutismEdu.API.Middlewares;
 using AutismEdu.API.Models;
 using AutismEdu.API.Repositories;
 using AutismEdu.API.Services;
@@ -149,7 +151,8 @@ namespace AutismEdu.API
             builder.Services.AddScoped<UpdateUserProfileOrchestrator>();
             builder.Services.AddScoped<ITokenService, JwtService>();
             builder.Services.AddScoped<IMailKitEmailService, MailKitEmailService>();
-         
+            builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             builder.Services.AddValidatorsFromAssembly(typeof(RegisterCommandValidator).Assembly);
@@ -175,12 +178,25 @@ namespace AutismEdu.API
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
 
             app.MapControllers();
-         
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+                dbContext.Database.Migrate();
+                IdentitySeeder.SeedIdentityAsync(roleManager, userManager).GetAwaiter().GetResult();
+            }
 
             #endregion
 

@@ -1,4 +1,4 @@
-﻿using AutismEdu.API.Models;
+using AutismEdu.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +20,10 @@ namespace AutismEdu.API.Data
         public DbSet<ChildActivity> ChildActivities { get; set; }
         public DbSet<ChildCard> ChildCards { get; set; }
         public DbSet<TTSContent> TTSContents { get; set; }
+        public DbSet<Guideline> Guidelines { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<ChildLessonLevel> ChildLessonLevels { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
            
