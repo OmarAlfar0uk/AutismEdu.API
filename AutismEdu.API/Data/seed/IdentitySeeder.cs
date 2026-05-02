@@ -7,7 +7,7 @@ namespace AutismEdu.API.Data.seed
     {
         public static async Task SeedIdentityAsync(RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
         {
-            string[] roles = { "Admin", "User" };
+            string[] roles = { "Admin", "User", "specialist", "parent" };
 
             foreach (var roleName in roles)
             {
@@ -37,6 +37,7 @@ namespace AutismEdu.API.Data.seed
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, "Admin");
+                    await userManager.AddToRoleAsync(user, "specialist");
                     Console.WriteLine("Default Admin user created successfully!");
                 }
                 else
@@ -47,6 +48,16 @@ namespace AutismEdu.API.Data.seed
                         Console.WriteLine($" - {error.Description}");
                     Console.ResetColor();
                 }
+            }
+            else
+            {
+                var currentRoles = await userManager.GetRolesAsync(adminUser);
+
+                if (!currentRoles.Contains("Admin"))
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+
+                if (!currentRoles.Contains("specialist"))
+                    await userManager.AddToRoleAsync(adminUser, "specialist");
             }
         }
     }

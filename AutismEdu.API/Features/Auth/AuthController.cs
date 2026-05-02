@@ -1,9 +1,10 @@
-﻿using AutismEdu.API.Features.Auth.ChangePassword;
+using AutismEdu.API.Features.Auth.ChangePassword;
 using AutismEdu.API.Features.Auth.ForgetPassword.OTP;
 using AutismEdu.API.Features.Auth.ForgetPassword.ResetPassword;
 using AutismEdu.API.Features.Auth.GetCurrentUser;
 using AutismEdu.API.Features.Auth.Login;
 using AutismEdu.API.Features.Auth.Logout;
+using AutismEdu.API.Features.Auth.RefreshToken;
 using AutismEdu.API.Features.Auth.Register;
 using AutismEdu.API.Features.Auth.UpdateUserProfile;
 using MediatR;
@@ -122,6 +123,13 @@ namespace AutismEdu.API.Features.Auth
             return Ok(result);
         }
 
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
 
     }
 }

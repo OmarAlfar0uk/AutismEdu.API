@@ -1,6 +1,7 @@
-﻿
+
 using System.Net;
 using System.Text.Json;
+using AutismEdu.API.Exceptions;
 using FluentValidation;
 namespace AutismEdu.API.Middlewares
 {
@@ -25,16 +26,16 @@ namespace AutismEdu.API.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
-
                 context.Response.ContentType = "application/json";
                 var statusCode = HttpStatusCode.InternalServerError;
                 object errorResponse;
+                var logAsError = true;
 
                 switch (ex)
                 {
                     case FluentValidation.ValidationException validationEx:
                         statusCode = HttpStatusCode.BadRequest;
+                        logAsError = false;
                         errorResponse = new
                         {
                             statusCode = (int)statusCode,
@@ -50,6 +51,7 @@ namespace AutismEdu.API.Middlewares
 
                     case BadHttpRequestException badReqEx:
                         statusCode = HttpStatusCode.BadRequest;
+                        logAsError = false;
                         errorResponse = new
                         {
                             statusCode = (int)statusCode,
@@ -59,6 +61,7 @@ namespace AutismEdu.API.Middlewares
 
                     case KeyNotFoundException keyNotFoundEx:
                         statusCode = HttpStatusCode.NotFound;
+                        logAsError = false;
                         errorResponse = new
                         {
                             statusCode = (int)statusCode,
@@ -66,7 +69,30 @@ namespace AutismEdu.API.Middlewares
                         };
                         break;
 
+                    case ConflictException conflictEx:
+                        statusCode = HttpStatusCode.Conflict;
+                        logAsError = false;
+                        errorResponse = new
+                        {
+                            statusCode = (int)statusCode,
+                            message = conflictEx.Message,
+                            timestamp = DateTime.UtcNow.ToString("o")
+                        };
+                        break;
+
+                    case ForbiddenException forbiddenEx:
+                        statusCode = HttpStatusCode.Forbidden;
+                        logAsError = false;
+                        errorResponse = new
+                        {
+                            statusCode = (int)statusCode,
+                            message = forbiddenEx.Message,
+                            timestamp = DateTime.UtcNow.ToString("o")
+                        };
+                        break;
+
                     case UnauthorizedAccessException unauthorizedEx:
+                        logAsError = false;
                         // 401 = لم يُسجل دخول المستخدم
                         // 403 = لا يملك صلاحية (Forbidden)
                         if (context.User.Identity?.IsAuthenticated ?? false)
@@ -84,7 +110,9 @@ namespace AutismEdu.API.Middlewares
                             errorResponse = new
                             {
                                 statusCode = (int)statusCode,
-                                message = "Invalid email or password."
+                                message = string.IsNullOrWhiteSpace(unauthorizedEx.Message)
+                                    ? "Unauthorized."
+                                    : unauthorizedEx.Message
                             };
                         }
                         break;
@@ -99,6 +127,11 @@ namespace AutismEdu.API.Middlewares
                         };
                         break;
                 }
+
+                if (logAsError)
+                    _logger.LogError(ex, "Unhandled exception occurred");
+                else
+                    _logger.LogWarning(ex, "Handled exception occurred");
 
                 context.Response.StatusCode = (int)statusCode;
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
