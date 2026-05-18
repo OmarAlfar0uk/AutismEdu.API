@@ -23,6 +23,6 @@ namespace AutismEdu.API.Features.Children.Add
         public int Age { get; set; }
         public string? Gender { get; set; }
         [JsonPropertyName("parent_id")]
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
     }
 }

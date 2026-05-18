@@ -377,7 +377,7 @@ namespace AutismEdu.API.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -852,8 +852,7 @@ namespace AutismEdu.API.Data.Migrations
                     b.HasOne("AutismEdu.API.Models.ApplicationUser", "User")
                         .WithMany("ChildProfiles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });

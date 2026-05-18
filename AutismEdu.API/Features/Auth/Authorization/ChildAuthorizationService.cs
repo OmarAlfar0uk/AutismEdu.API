@@ -21,7 +21,8 @@ namespace AutismEdu.API.Features.Auth.Authorization
             if (!user.IsInRole("parent"))
                 return false;
 
-            var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? user.FindFirstValue("id");
             if (!Guid.TryParse(userIdClaim, out var parentId))
                 return false;
 

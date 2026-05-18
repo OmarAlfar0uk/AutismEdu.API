@@ -29,7 +29,7 @@ namespace AutismEdu.API.Features.Children.Add
             var parentId = await ResolveParentIdAsync(request);
             var parentEmail = request.EmailParent;
 
-            if (string.IsNullOrWhiteSpace(parentEmail))
+            if (string.IsNullOrWhiteSpace(parentEmail) && parentId.HasValue)
             {
                 var parent = await _userManager.FindByIdAsync(parentId.ToString());
                 parentEmail = parent?.Email;
@@ -57,7 +57,7 @@ namespace AutismEdu.API.Features.Children.Add
             };
         }
 
-        private async Task<Guid> ResolveParentIdAsync(CreateChildCommand request)
+        private async Task<Guid?> ResolveParentIdAsync(CreateChildCommand request)
         {
             if (request.ParentId.HasValue && request.ParentId.Value != Guid.Empty)
                 return request.ParentId.Value;
@@ -73,11 +73,12 @@ namespace AutismEdu.API.Features.Children.Add
             }
 
             var user = _httpContextAccessor.HttpContext?.User;
-            var userIdClaim = user?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdClaim = user?.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? user?.FindFirstValue("id");
             if (user?.IsInRole("parent") == true && Guid.TryParse(userIdClaim, out var parentId))
                 return parentId;
 
-            throw new BadHttpRequestException("Parent could not be resolved from parentId, emailParent, userId, or authenticated parent context.");
+            return null;
         }
     }
 }

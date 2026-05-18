@@ -52,9 +52,17 @@ namespace AutismEdu.API.Features.Auth.Register
                 throw new ApplicationException($"User creation failed: {errors}");
             }
 
-            // 👤 Assign default role
-            if (await _roleManager.RoleExistsAsync("User"))
-                await _userManager.AddToRoleAsync(user, "User");
+            // 👤 Assign default role used by parent-only API endpoints.
+            const string defaultRole = "parent";
+            if (!await _roleManager.RoleExistsAsync(defaultRole))
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(defaultRole));
+
+            var roleResult = await _userManager.AddToRoleAsync(user, defaultRole);
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new ApplicationException($"Role assignment failed: {errors}");
+            }
 
             // 🎭 Get roles
             var roles = await _userManager.GetRolesAsync(user);

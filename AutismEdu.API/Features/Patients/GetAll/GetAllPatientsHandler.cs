@@ -21,9 +21,14 @@ namespace AutismEdu.API.Features.Patients.GetAll
             var repo = _uow.GetRepository<ChildProfile>();
             var query = repo.GetAllAsync();
 
-            if (request.ParentUserId.HasValue)
+            if (request.ParentUserId.HasValue || !string.IsNullOrWhiteSpace(request.ParentEmail))
             {
-                query = query.Where(p => p.UserId == request.ParentUserId.Value);
+                var parentUserId = request.ParentUserId;
+                var parentEmail = request.ParentEmail;
+
+                query = query.Where(p =>
+                    (parentUserId.HasValue && p.UserId == parentUserId.Value) ||
+                    (!string.IsNullOrWhiteSpace(parentEmail) && p.ParentEmail == parentEmail));
             }
 
             // Filters
@@ -53,8 +58,15 @@ namespace AutismEdu.API.Features.Patients.GetAll
 
             // Dashboard aggregates (from query or full set depending on requirements, here using full set for simplicity)
             var allPatientsQuery = repo.GetAllAsync();
-            if (request.ParentUserId.HasValue)
-                allPatientsQuery = allPatientsQuery.Where(p => p.UserId == request.ParentUserId.Value);
+            if (request.ParentUserId.HasValue || !string.IsNullOrWhiteSpace(request.ParentEmail))
+            {
+                var parentUserId = request.ParentUserId;
+                var parentEmail = request.ParentEmail;
+
+                allPatientsQuery = allPatientsQuery.Where(p =>
+                    (parentUserId.HasValue && p.UserId == parentUserId.Value) ||
+                    (!string.IsNullOrWhiteSpace(parentEmail) && p.ParentEmail == parentEmail));
+            }
 
             var allPatients = await allPatientsQuery.ToListAsync(cancellationToken);
             var activeCount = allPatients.Count(p => p.Status == PatientStatus.InProgress);

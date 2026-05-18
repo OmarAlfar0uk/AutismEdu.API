@@ -11,6 +11,7 @@ namespace AutismEdu.API.Features.Patients.GetAll
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 10;
         internal Guid? ParentUserId { get; set; }
+        internal string? ParentEmail { get; set; }
         internal bool IsSpecialist { get; set; }
     }
 

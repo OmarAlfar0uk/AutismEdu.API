@@ -7,8 +7,8 @@ namespace AutismEdu.API.Models
         public string Name { get; set; } = default!;
         public int Age { get; set; }
         public string? Notes { get; set; }
-        public Guid UserId { get; set; }
-        public ApplicationUser User { get; set; }
+        public Guid? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
 
         // Patient-specific fields
         public string? FocusArea { get; set; }
@@ -22,4 +22,3 @@ namespace AutismEdu.API.Models
         public ICollection<ChildCard>? ChildCards { get; set; }
     }
 }
-

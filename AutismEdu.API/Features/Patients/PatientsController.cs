@@ -3,6 +3,7 @@ using AutismEdu.API.Features.Patients.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace AutismEdu.API.Features.Patients
@@ -29,11 +30,15 @@ namespace AutismEdu.API.Features.Patients
 
             if (User.IsInRole("parent"))
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? User.FindFirstValue("id");
                 if (!Guid.TryParse(userIdClaim, out var parentId))
                     return NotFound(Error(404, "Child not found or not accessible"));
 
                 query.ParentUserId = parentId;
+                query.ParentEmail = User.FindFirstValue(ClaimTypes.Email)
+                    ?? User.FindFirstValue(JwtRegisteredClaimNames.Email)
+                    ?? User.FindFirstValue("email");
             }
 
             var result = await _mediator.Send(query);

@@ -15,7 +15,8 @@ namespace AutismEdu.API.Data.Configurations
             builder.HasOne(c => c.User)
                 .WithMany(u => u.ChildProfiles)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
     }

@@ -72,7 +72,8 @@ namespace AutismEdu.API.Features.Children
         {
             if (User.IsInRole("parent"))
             {
-                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? User.FindFirstValue("id");
                 if (!Guid.TryParse(currentUserId, out var parentId) || parentId != userId)
                     return NotFound(Error(404, "Child not found or not accessible"));
             }

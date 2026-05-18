@@ -24,10 +24,15 @@ namespace AutismEdu.API.Repositories
         {
             var roles = await _userManager.GetRolesAsync(user);
 
+            var userId = user.Id.ToString();
+            var email = user.Email ?? string.Empty;
+
             var claims = new List<Claim>
             {
-                new Claim("id", user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", userId),
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(ClaimTypes.Email, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
@@ -66,10 +71,15 @@ namespace AutismEdu.API.Repositories
 
         private string GenerateAccessToken(ApplicationUser user, IList<string> roles)
         {
+            var userId = user.Id.ToString();
+            var email = user.Email ?? string.Empty;
+
             var claims = new List<Claim>
             {
-                new Claim("id", user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", userId),
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(ClaimTypes.Email, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
