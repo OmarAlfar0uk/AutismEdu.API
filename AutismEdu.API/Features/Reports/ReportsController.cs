@@ -1,3 +1,4 @@
+using AutismEdu.API.Features.Auth.Authorization;
 using AutismEdu.API.Features.Reports.Create;
 using AutismEdu.API.Features.Reports.Delete;
 using AutismEdu.API.Features.Reports.Export;
@@ -14,32 +15,52 @@ namespace AutismEdu.API.Features.Reports
     public class ReportsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IChildAuthorizationService _childAuthorizationService;
 
-        public ReportsController(IMediator mediator)
+        public ReportsController(IMediator mediator, IChildAuthorizationService childAuthorizationService)
         {
             _mediator = mediator;
+            _childAuthorizationService = childAuthorizationService;
         }
 
-        // GET: api/Reports/child/{childId} — existing endpoint
+        /// <summary>
+        /// Gets a child report. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId:guid}")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetChildReport(Guid childId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var report = await _mediator.Send(new GetChildReportQuery(childId));
             return Ok(report);
         }
 
-        // GET: api/Reports/child/{childId}/weekly — existing endpoint
+        /// <summary>
+        /// Gets a weekly child report. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId:guid}/weekly")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetWeekly(Guid childId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var report = await _mediator.Send(new GetWeeklyReportQuery(childId));
             return Ok(report);
         }
 
-        // GET: api/Reports/child/{childId}/monthly — existing endpoint
+        /// <summary>
+        /// Gets a monthly child report. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId:guid}/monthly")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetMonthly(Guid childId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var report = await _mediator.Send(new GetMonthlyReportQuery(childId));
             return Ok(report);
         }
@@ -71,7 +92,7 @@ namespace AutismEdu.API.Features.Reports
             var result = await _mediator.Send(new DeleteReportCommand { Id = id });
 
             if (!result)
-                return NotFound(new { status = "error", code = 404, message = "Report not found.", timestamp = DateTime.UtcNow });
+                return NotFound(Error(404, "Report not found."));
 
             return Ok(new { message = "Report deleted" });
         }
@@ -84,9 +105,17 @@ namespace AutismEdu.API.Features.Reports
             var result = await _mediator.Send(new ExportReportQuery { Id = id, Format = format });
 
             if (result == null)
-                return NotFound(new { status = "error", code = 404, message = "Report not found.", timestamp = DateTime.UtcNow });
+                return NotFound(Error(404, "Report not found."));
 
             return File(result.FileContent, result.ContentType, result.FileName);
         }
+
+        private static object Error(int code, string message) => new
+        {
+            status = "error",
+            code,
+            message,
+            timestamp = DateTime.UtcNow.ToString("o")
+        };
     }
 }

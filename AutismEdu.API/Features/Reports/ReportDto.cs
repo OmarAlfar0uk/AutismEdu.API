@@ -6,6 +6,8 @@ namespace AutismEdu.API.Features.Reports
     {
         public Guid Id { get; set; }
         public Guid StudentId { get; set; }
+        public Guid ChildId { get; set; }
+        public Guid PatientId { get; set; }
         public string? StudentName { get; set; }
         public string Frequency { get; set; } = default!;
         public DateTime StartDate { get; set; }

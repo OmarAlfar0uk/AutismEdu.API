@@ -38,8 +38,10 @@ namespace AutismEdu.API.Middlewares
                         logAsError = false;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
+                            status = "error",
+                            code = (int)statusCode,
                             message = "Validation failed.",
+                            timestamp = DateTime.UtcNow.ToString("o"),
                             errors = validationEx.Errors
                                 .Select(e => new
                                 {
@@ -54,8 +56,10 @@ namespace AutismEdu.API.Middlewares
                         logAsError = false;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
-                            message = badReqEx.Message
+                            status = "error",
+                            code = (int)statusCode,
+                            message = badReqEx.Message,
+                            timestamp = DateTime.UtcNow.ToString("o")
                         };
                         break;
 
@@ -64,8 +68,10 @@ namespace AutismEdu.API.Middlewares
                         logAsError = false;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
-                            message = keyNotFoundEx.Message
+                            status = "error",
+                            code = (int)statusCode,
+                            message = keyNotFoundEx.Message,
+                            timestamp = DateTime.UtcNow.ToString("o")
                         };
                         break;
 
@@ -74,7 +80,8 @@ namespace AutismEdu.API.Middlewares
                         logAsError = false;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
+                            status = "error",
+                            code = (int)statusCode,
                             message = conflictEx.Message,
                             timestamp = DateTime.UtcNow.ToString("o")
                         };
@@ -85,7 +92,8 @@ namespace AutismEdu.API.Middlewares
                         logAsError = false;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
+                            status = "error",
+                            code = (int)statusCode,
                             message = forbiddenEx.Message,
                             timestamp = DateTime.UtcNow.ToString("o")
                         };
@@ -100,8 +108,10 @@ namespace AutismEdu.API.Middlewares
                             statusCode = HttpStatusCode.Forbidden; // 403
                             errorResponse = new
                             {
-                                statusCode = (int)statusCode,
-                                message = "You do not have permission to perform this action."
+                                status = "error",
+                                code = (int)statusCode,
+                                message = "You do not have permission to perform this action.",
+                                timestamp = DateTime.UtcNow.ToString("o")
                             };
                         }
                         else
@@ -109,10 +119,12 @@ namespace AutismEdu.API.Middlewares
                             statusCode = HttpStatusCode.Unauthorized; // 401
                             errorResponse = new
                             {
-                                statusCode = (int)statusCode,
+                                status = "error",
+                                code = (int)statusCode,
                                 message = string.IsNullOrWhiteSpace(unauthorizedEx.Message)
                                     ? "Unauthorized."
-                                    : unauthorizedEx.Message
+                                    : unauthorizedEx.Message,
+                                timestamp = DateTime.UtcNow.ToString("o")
                             };
                         }
                         break;
@@ -121,8 +133,10 @@ namespace AutismEdu.API.Middlewares
                         statusCode = HttpStatusCode.InternalServerError;
                         errorResponse = new
                         {
-                            statusCode = (int)statusCode,
+                            status = "error",
+                            code = (int)statusCode,
                             message = "An unexpected error occurred.",
+                            timestamp = DateTime.UtcNow.ToString("o"),
                             details = _env.IsDevelopment() ? ex.Message : null
                         };
                         break;

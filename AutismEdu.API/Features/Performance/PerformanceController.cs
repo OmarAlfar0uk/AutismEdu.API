@@ -1,6 +1,8 @@
 ﻿using AutismEdu.API.Features.Performance.Add;
+using AutismEdu.API.Features.Auth.Authorization;
 using AutismEdu.API.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +13,12 @@ namespace AutismEdu.API.Features.Performance
     public class PerformanceController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IChildAuthorizationService _childAuthorizationService;
 
-        public PerformanceController(IMediator mediator)
+        public PerformanceController(IMediator mediator, IChildAuthorizationService childAuthorizationService)
         {
             _mediator = mediator;
+            _childAuthorizationService = childAuthorizationService;
         }
 
         [HttpPost]
@@ -28,18 +32,30 @@ namespace AutismEdu.API.Features.Performance
                 recordId
             });
         }
-        // GET: api/performance/child/{childId}
+        /// <summary>
+        /// Gets performance for a child. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId}")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetChildPerformance(Guid childId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var result = await _mediator.Send(new GetChildPerformanceQuery { ChildId = childId });
             return Ok(result);
         }
 
-        // GET: api/performance/child/{childId}/lesson/{lessonId}
+        /// <summary>
+        /// Gets lesson performance for a child. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId}/lesson/{lessonId}")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetLessonPerformance(Guid childId, Guid lessonId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var result = await _mediator.Send(new GetLessonPerformanceQuery
             {
                 ChildId = childId,
@@ -52,10 +68,16 @@ namespace AutismEdu.API.Features.Performance
             return Ok(result);
         }
 
-        // GET: api/performance/child/{childId}/stats
+        /// <summary>
+        /// Gets performance stats for a child. Specialists may access any child; parents may access only children owned by their JWT user id and otherwise receive 404.
+        /// </summary>
         [HttpGet("child/{childId}/stats")]
+        [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetStats(Guid childId)
         {
+            if (!_childAuthorizationService.IsAuthorizedForChild(childId, User))
+                return NotFound(Error(404, "Child not found or not accessible"));
+
             var result = await _mediator.Send(new GetChildPerformanceStatsQuery
             {
                 ChildId = childId
@@ -64,6 +86,12 @@ namespace AutismEdu.API.Features.Performance
             return Ok(result);
         }
 
-
+        private static object Error(int code, string message) => new
+        {
+            status = "error",
+            code,
+            message,
+            timestamp = DateTime.UtcNow.ToString("o")
+        };
     }
 }
