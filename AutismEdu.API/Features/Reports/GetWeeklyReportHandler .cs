@@ -28,7 +28,9 @@ namespace AutismEdu.API.Features.Reports
 
             return new ChildReportDto
             {
+                Id = request.ChildId,
                 ChildId = request.ChildId,
+                PatientId = request.ChildId,
                 LessonsCompleted = weeklyStats.Count,
                 AverageScore = weeklyStats.Any() ? weeklyStats.Average(x => x.Score) : 0,
                 TotalTimeSpent = weeklyStats.Sum(x => x.TimeSpent ?? 0),

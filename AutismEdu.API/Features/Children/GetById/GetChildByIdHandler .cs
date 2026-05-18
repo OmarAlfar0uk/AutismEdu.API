@@ -25,6 +25,8 @@ namespace AutismEdu.API.Features.Children.GetById
             return new ChildDto
             {
                 Id = child.Id,
+                ChildId = child.Id,
+                PatientId = child.Id,
                 UserId = child.UserId,
                 Name = child.Name,
                 Age = child.Age,

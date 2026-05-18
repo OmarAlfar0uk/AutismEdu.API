@@ -53,6 +53,8 @@ namespace AutismEdu.API.Features.Reports.Update
             {
                 Id = report.Id,
                 StudentId = report.StudentId,
+                ChildId = report.StudentId,
+                PatientId = report.StudentId,
                 StudentName = child?.Name,
                 Frequency = report.Frequency.ToString(),
                 StartDate = report.StartDate,

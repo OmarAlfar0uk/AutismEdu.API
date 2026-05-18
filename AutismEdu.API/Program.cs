@@ -2,6 +2,7 @@ using AutismEdu.API.Contracts;
 using AutismEdu.API.Data;
 using AutismEdu.API.Data.seed;
 using AutismEdu.API.Features;
+using AutismEdu.API.Features.Auth.Authorization;
 using AutismEdu.API.Features.Auth;
 using AutismEdu.API.Features.Auth.Login;
 using AutismEdu.API.Features.Auth.Register;
@@ -14,6 +15,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
@@ -35,6 +37,28 @@ namespace AutismEdu.API
 
 
             builder.Services.AddControllers();
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(entry => entry.Value?.Errors.Count > 0)
+                        .Select(entry => new
+                        {
+                            field = entry.Key,
+                            errors = entry.Value!.Errors.Select(error => error.ErrorMessage)
+                        });
+
+                    return new BadRequestObjectResult(new
+                    {
+                        status = "error",
+                        code = 400,
+                        message = "Validation failed.",
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        errors
+                    });
+                };
+            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -113,8 +137,10 @@ namespace AutismEdu.API
                             context.Response.ContentType = "application/json";
                             var result = JsonSerializer.Serialize(new
                             {
-                                statusCode = 401,
-                                message = "You are not authenticated. Please provide a valid token."
+                                status = "error",
+                                code = 401,
+                                message = "You are not authenticated. Please provide a valid token.",
+                                timestamp = DateTime.UtcNow.ToString("o")
                             });
                             return context.Response.WriteAsync(result);
                         },
@@ -124,8 +150,10 @@ namespace AutismEdu.API
                             context.Response.ContentType = "application/json";
                             var result = JsonSerializer.Serialize(new
                             {
-                                statusCode = 403,
-                                message = "You are not authorized to access this resource."
+                                status = "error",
+                                code = 403,
+                                message = "You are not authorized to access this resource.",
+                                timestamp = DateTime.UtcNow.ToString("o")
                             });
                             return context.Response.WriteAsync(result);
                         }
@@ -152,6 +180,7 @@ namespace AutismEdu.API
             builder.Services.AddScoped<ITokenService, JwtService>();
             builder.Services.AddScoped<IMailKitEmailService, MailKitEmailService>();
             builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            builder.Services.AddScoped<IChildAuthorizationService, ChildAuthorizationService>();
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

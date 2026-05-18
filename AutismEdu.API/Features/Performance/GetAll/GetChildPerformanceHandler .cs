@@ -30,6 +30,7 @@ namespace AutismEdu.API.Features.Performance.GetAll
             {
                 Id = p.Id,
                 ChildId = p.ChildId,
+                PatientId = p.ChildId,
                 LessonId = p.LessonId,
                 Score = p.Score,
                 TimeSpent = p.TimeSpent,

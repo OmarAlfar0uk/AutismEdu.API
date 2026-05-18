@@ -30,6 +30,7 @@ namespace AutismEdu.API.Features.Performance.GetById
             {
                 Id = result.Id,
                 ChildId = result.ChildId,
+                PatientId = result.ChildId,
                 LessonId = result.LessonId,
                 Score = result.Score,
                 TimeSpent = result.TimeSpent,
@@ -38,4 +39,3 @@ namespace AutismEdu.API.Features.Performance.GetById
         }
     }
 }
-

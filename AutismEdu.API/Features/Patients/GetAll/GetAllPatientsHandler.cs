@@ -21,6 +21,11 @@ namespace AutismEdu.API.Features.Patients.GetAll
             var repo = _uow.GetRepository<ChildProfile>();
             var query = repo.GetAllAsync();
 
+            if (request.ParentUserId.HasValue)
+            {
+                query = query.Where(p => p.UserId == request.ParentUserId.Value);
+            }
+
             // Filters
             if (!string.IsNullOrEmpty(request.Status) && request.Status.ToLower() != "all")
             {
@@ -30,9 +35,9 @@ namespace AutismEdu.API.Features.Patients.GetAll
                 }
             }
 
-            if (!string.IsNullOrEmpty(request.Search))
+            if (!string.IsNullOrEmpty(request.Search) && request.IsSpecialist)
             {
-                query = query.Where(p => p.Name.Contains(request.Search));
+                query = query.Where(p => p.ParentEmail != null && p.ParentEmail.Contains(request.Search));
             }
 
             if (!string.IsNullOrEmpty(request.AgeRange))
@@ -47,7 +52,11 @@ namespace AutismEdu.API.Features.Patients.GetAll
             var total = await query.CountAsync(cancellationToken);
 
             // Dashboard aggregates (from query or full set depending on requirements, here using full set for simplicity)
-            var allPatients = await repo.GetAllAsync().ToListAsync(cancellationToken);
+            var allPatientsQuery = repo.GetAllAsync();
+            if (request.ParentUserId.HasValue)
+                allPatientsQuery = allPatientsQuery.Where(p => p.UserId == request.ParentUserId.Value);
+
+            var allPatients = await allPatientsQuery.ToListAsync(cancellationToken);
             var activeCount = allPatients.Count(p => p.Status == PatientStatus.InProgress);
             var reviewsPending = allPatients.Count(p => p.Status == PatientStatus.NeedsReview);
             
@@ -67,6 +76,8 @@ namespace AutismEdu.API.Features.Patients.GetAll
             var patientDtos = patients.Select(p => new PatientDto
             {
                 Id = p.Id,
+                ChildId = p.Id,
+                PatientId = p.Id,
                 Name = p.Name,
                 Age = p.Age,
                 FocusArea = p.FocusArea,

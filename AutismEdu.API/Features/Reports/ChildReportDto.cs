@@ -2,7 +2,9 @@
 {
     public class ChildReportDto
     {
+        public Guid Id { get; set; }
         public Guid ChildId { get; set; }
+        public Guid PatientId { get; set; }
         public string Name { get; set; }
         public int LessonsCompleted { get; set; }
         public int ActivitiesCompleted { get; set; }

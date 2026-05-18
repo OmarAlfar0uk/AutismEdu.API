@@ -56,7 +56,9 @@ namespace AutismEdu.API.Features.Reports
 
             return new ChildReportDto
             {
+                Id = request.ChildId,
                 ChildId = request.ChildId,
+                PatientId = request.ChildId,
                 Name = child.Name,
                 LessonsCompleted = lessonsCompleted,
                 ActivitiesCompleted = activitiesCompleted,
