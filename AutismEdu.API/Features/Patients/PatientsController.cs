@@ -13,10 +13,12 @@ namespace AutismEdu.API.Features.Patients
     public class PatientsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly Features.Auth.Authorization.IAuthorizationHelper _authHelper;
 
-        public PatientsController(IMediator mediator)
+        public PatientsController(IMediator mediator, Features.Auth.Authorization.IAuthorizationHelper authHelper)
         {
             _mediator = mediator;
+            _authHelper = authHelper;
         }
 
         /// <summary>
@@ -26,16 +28,22 @@ namespace AutismEdu.API.Features.Patients
         [Authorize(Roles = "specialist,parent")]
         public async Task<IActionResult> GetAll([FromQuery] GetAllPatientsQuery query)
         {
-            query.IsSpecialist = User.IsInRole("specialist");
+            var role = _authHelper.GetCurrentRole(User);
+            var currentUserId = _authHelper.GetCurrentUserId(User);
 
-            if (User.IsInRole("parent"))
+            query.IsSpecialist = string.Equals(role, "specialist", StringComparison.OrdinalIgnoreCase);
+
+            if (query.IsSpecialist)
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
-                    ?? User.FindFirstValue("id");
-                if (!Guid.TryParse(userIdClaim, out var parentId))
+                query.SpecialistUserId = currentUserId;
+            }
+
+            if (string.Equals(role, "parent", StringComparison.OrdinalIgnoreCase))
+            {
+                if (currentUserId == Guid.Empty)
                     return NotFound(Error(404, "Child not found or not accessible"));
 
-                query.ParentUserId = parentId;
+                query.ParentUserId = currentUserId;
                 query.ParentEmail = User.FindFirstValue(ClaimTypes.Email)
                     ?? User.FindFirstValue(JwtRegisteredClaimNames.Email)
                     ?? User.FindFirstValue("email");

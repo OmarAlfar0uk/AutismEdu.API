@@ -1,4 +1,4 @@
-﻿namespace AutismEdu.API.Models
+namespace AutismEdu.API.Models
 {
     public class BaseEntity
     {
@@ -6,5 +6,8 @@
         public DateTime CreatedAt { set; get; } = DateTime.Now;
         public DateTime? UpdatedAt { set; get; } = DateTime.Now;
         public bool IsDeleted { set; get; } = false;
+
+        public Guid? CreatedBy { get; set; }
+        
     }
 }

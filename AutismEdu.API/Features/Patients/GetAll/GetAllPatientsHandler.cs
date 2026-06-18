@@ -21,6 +21,13 @@ namespace AutismEdu.API.Features.Patients.GetAll
             var repo = _uow.GetRepository<ChildProfile>();
             var query = repo.GetAllAsync();
 
+            // ISSUE 1 FIX: Data isolation — specialists only see patients they created
+            if (request.IsSpecialist && request.SpecialistUserId.HasValue)
+            {
+                var specialistId = request.SpecialistUserId.Value;
+                query = query.Where(p => p.UserId == specialistId || p.CreatedBy == specialistId);
+            }
+
             if (request.ParentUserId.HasValue || !string.IsNullOrWhiteSpace(request.ParentEmail))
             {
                 var parentUserId = request.ParentUserId;
@@ -58,6 +65,14 @@ namespace AutismEdu.API.Features.Patients.GetAll
 
             // Dashboard aggregates (from query or full set depending on requirements, here using full set for simplicity)
             var allPatientsQuery = repo.GetAllAsync();
+
+            // ISSUE 1 FIX: Also apply specialist isolation to dashboard aggregates
+            if (request.IsSpecialist && request.SpecialistUserId.HasValue)
+            {
+                var specialistId = request.SpecialistUserId.Value;
+                allPatientsQuery = allPatientsQuery.Where(p => p.UserId == specialistId || p.CreatedBy == specialistId);
+            }
+
             if (request.ParentUserId.HasValue || !string.IsNullOrWhiteSpace(request.ParentEmail))
             {
                 var parentUserId = request.ParentUserId;

@@ -21,6 +21,7 @@ namespace AutismEdu.API.Data
         public DbSet<ChildCard> ChildCards { get; set; }
         public DbSet<TTSContent> TTSContents { get; set; }
         public DbSet<Guideline> Guidelines { get; set; }
+        public DbSet<ChildGuideline> ChildGuidelines { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ChildLessonLevel> ChildLessonLevels { get; set; }
         public DbSet<Appointment> Appointments { get; set; }

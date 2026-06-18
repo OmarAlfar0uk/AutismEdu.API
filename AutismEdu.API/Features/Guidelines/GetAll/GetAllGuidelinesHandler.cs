@@ -19,6 +19,37 @@ namespace AutismEdu.API.Features.Guidelines.GetAll
             var repo = _uow.GetRepository<Guideline>();
             var query = repo.GetAllAsync();
 
+            // ISSUE 1 & 3 FIX: Guidelines isolation based on user role
+            if (request.CurrentUserId.HasValue &&
+                string.Equals(request.CurrentRole, "specialist", StringComparison.OrdinalIgnoreCase))
+            {
+                var userId = request.CurrentUserId.Value;
+                query = query.Where(g => g.SpecialistId == userId || g.CreatedBy == userId);
+            }
+            else if (request.CurrentUserId.HasValue &&
+                     string.Equals(request.CurrentRole, "parent", StringComparison.OrdinalIgnoreCase))
+            {
+                var parentId = request.CurrentUserId.Value;
+                var childIds = await _uow.GetRepository<ChildProfile>()
+                    .GetAllAsync()
+                    .Where(c => c.UserId == parentId)
+                    .Select(c => c.Id)
+                    .ToListAsync(cancellationToken);
+
+                var assignedGuidelineIds = await _uow.GetRepository<ChildGuideline>()
+                    .GetAllAsync()
+                    .Where(cg => childIds.Contains(cg.ChildId))
+                    .Select(cg => cg.GuidelineId)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+
+                query = query.Where(g => assignedGuidelineIds.Contains(g.Id));
+            }
+            else if (!request.CurrentUserId.HasValue || string.IsNullOrEmpty(request.CurrentRole))
+            {
+                query = query.Where(g => g.SpecialistId == null && g.CreatedBy == null);
+            }
+
             var total = await query.CountAsync(cancellationToken);
 
             var guidelines = await query

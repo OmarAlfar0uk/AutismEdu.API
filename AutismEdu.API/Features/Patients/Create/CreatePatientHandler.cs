@@ -37,7 +37,8 @@ namespace AutismEdu.API.Features.Patients.Create
                 FocusArea = request.FocusArea,
                 SkillTags = request.SkillTags != null ? JsonSerializer.Serialize(request.SkillTags) : "[]",
                 Status = PatientStatus.InProgress,
-                ParentEmail = request.EmailParent
+                ParentEmail = request.EmailParent,
+                CreatedBy = specialistId
             };
 
             var repo = _uow.GetRepository<ChildProfile>();

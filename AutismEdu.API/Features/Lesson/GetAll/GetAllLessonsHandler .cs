@@ -1,4 +1,4 @@
-﻿using AutismEdu.API.Contracts;
+using AutismEdu.API.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +18,14 @@ namespace AutismEdu.API.Features.Lesson.GetAll
             var repo = _unitOfWork.GetRepository<Models.Lesson>();
 
             var query = repo.GetAllAsync(trackChanges: false);
+
+            // ISSUE 1 FIX: Data isolation — specialists only see their own lessons
+            if (request.CurrentUserId.HasValue &&
+                string.Equals(request.CurrentRole, "specialist", StringComparison.OrdinalIgnoreCase))
+            {
+                var userId = request.CurrentUserId.Value;
+                query = query.Where(x => x.SpecialistId == userId || x.CreatedBy == userId);
+            }
 
             var list = await query.ToListAsync(cancellationToken);
 

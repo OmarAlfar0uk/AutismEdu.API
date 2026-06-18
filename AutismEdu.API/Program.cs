@@ -181,6 +181,7 @@ namespace AutismEdu.API
             builder.Services.AddScoped<IMailKitEmailService, MailKitEmailService>();
             builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
             builder.Services.AddScoped<IChildAuthorizationService, ChildAuthorizationService>();
+            builder.Services.AddScoped<IAuthorizationHelper, AuthorizationHelper>();
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

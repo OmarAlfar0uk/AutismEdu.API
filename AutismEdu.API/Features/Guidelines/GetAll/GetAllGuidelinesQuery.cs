@@ -6,6 +6,10 @@ namespace AutismEdu.API.Features.Guidelines.GetAll
     {
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 6;
+
+        public Guid? CurrentUserId { get; set; }
+
+        public string? CurrentRole { get; set; }
     }
 
     public class GetAllGuidelinesResponse

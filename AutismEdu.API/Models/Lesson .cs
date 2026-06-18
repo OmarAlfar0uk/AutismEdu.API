@@ -1,4 +1,4 @@
-﻿namespace AutismEdu.API.Models
+namespace AutismEdu.API.Models
 {
     public class Lesson : BaseEntity
     {
@@ -9,6 +9,11 @@
 
         public string? Description { get; set; }
         public string? AudioUrl { get; set; }
+
+        /// <summary>
+        /// The specialist who created this lesson.
+        /// </summary>
+        public Guid? SpecialistId { get; set; }
 
         #region relationships
         public ICollection<PerformanceRecord>? PerformanceRecords { get; set; }

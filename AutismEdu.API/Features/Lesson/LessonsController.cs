@@ -8,6 +8,7 @@ using AutismEdu.API.Features.Lesson.Update;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AutismEdu.API.Features.Lesson
 {
@@ -17,9 +18,12 @@ namespace AutismEdu.API.Features.Lesson
     {
         private readonly IMediator _mediator;
 
-        public LessonsController(IMediator mediator)
+        private readonly Features.Auth.Authorization.IAuthorizationHelper _authHelper;
+
+        public LessonsController(IMediator mediator, Features.Auth.Authorization.IAuthorizationHelper authHelper)
         {
             _mediator = mediator;
+            _authHelper = authHelper;
         }
         //[HttpPost("{id}/tts")]
         //public async Task<IActionResult> GenerateSpeech(Guid id)
@@ -36,12 +40,17 @@ namespace AutismEdu.API.Features.Lesson
 
 
 
-
-        // GET: api/Lessons
+        // GET: api/Lessons (with data isolation)
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _mediator.Send(new GetAllLessonsQuery());
+            var query = new GetAllLessonsQuery();
+
+            query.CurrentUserId = _authHelper.GetCurrentUserId(User);
+            query.CurrentRole = _authHelper.GetCurrentRole(User);
+
+            var result = await _mediator.Send(query);
             return Ok(result);
         }
 

@@ -13,6 +13,7 @@ namespace AutismEdu.API.Features.Patients.GetAll
         internal Guid? ParentUserId { get; set; }
         internal string? ParentEmail { get; set; }
         internal bool IsSpecialist { get; set; }
+        internal Guid? SpecialistUserId { get; set; }
     }
 
     public class GetAllPatientsResponse

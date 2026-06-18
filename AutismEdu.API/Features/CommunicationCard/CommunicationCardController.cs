@@ -1,10 +1,12 @@
-﻿using AutismEdu.API.Features.CommunicationCard.AssignCardToChild;
+using AutismEdu.API.Features.CommunicationCard.AssignCardToChild;
 using AutismEdu.API.Features.CommunicationCard.Create;
 using AutismEdu.API.Features.CommunicationCard.Delete;
 using AutismEdu.API.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AutismEdu.API.Features.CommunicationCard
 {
@@ -13,16 +15,19 @@ namespace AutismEdu.API.Features.CommunicationCard
     public class CommunicationCardController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly Features.Auth.Authorization.IAuthorizationHelper _authHelper;
 
-        public CommunicationCardController(IMediator mediator)
+        public CommunicationCardController(IMediator mediator, Features.Auth.Authorization.IAuthorizationHelper authHelper)
         {
             _mediator = mediator;
+            _authHelper = authHelper;
         }
 
         // ---------------------------------------------
         // POST: Create Card
         // ---------------------------------------------
         [HttpPost("create")]
+        [Authorize(Roles = "specialist,Admin")]
         public async Task<IActionResult> Create([FromForm] CreateCommunicationCardCommand command)
         {
             var id = await _mediator.Send(command);
@@ -30,12 +35,18 @@ namespace AutismEdu.API.Features.CommunicationCard
         }
 
         // ---------------------------------------------
-        // GET: Get All Cards
+        // GET: Get All Cards (with data isolation)
         // ---------------------------------------------
         [HttpGet("all")]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var cards = await _mediator.Send(new GetAllCommunicationCardsQuery());
+            var query = new GetAllCommunicationCardsQuery();
+
+            query.CurrentUserId = _authHelper.GetCurrentUserId(User);
+            query.CurrentRole = _authHelper.GetCurrentRole(User);
+
+            var cards = await _mediator.Send(query);
             return Ok(cards);
         }
 
