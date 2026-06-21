@@ -1,8 +1,10 @@
 using AutismEdu.API.Contracts;
+using AutismEdu.API.Exceptions;
 using AutismEdu.API.Models;
 using AutismEdu.API.Models.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -13,12 +15,14 @@ namespace AutismEdu.API.Features.Patients.Create
         private readonly IUnitOfWork _uow;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMailKitEmailService _emailService;
+        private readonly Data.ApplicationDbContext _dbContext;
 
-        public CreatePatientHandler(IUnitOfWork uow, IHttpContextAccessor httpContextAccessor, IMailKitEmailService emailService)
+        public CreatePatientHandler(IUnitOfWork uow, IHttpContextAccessor httpContextAccessor, IMailKitEmailService emailService, Data.ApplicationDbContext dbContext)
         {
             _uow = uow;
             _httpContextAccessor = httpContextAccessor;
             _emailService = emailService;
+            _dbContext = dbContext;
         }
 
         public async Task<CreatePatientResponse> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -27,6 +31,12 @@ namespace AutismEdu.API.Features.Patients.Create
             if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var specialistId))
             {
                 throw new UnauthorizedAccessException("Specialist ID not found in token.");
+            }
+
+            var specialistExists = await _dbContext.Users.AnyAsync(user => user.Id == specialistId, cancellationToken);
+            if (!specialistExists)
+            {
+                throw new ConflictException("Authenticated specialist was not found in the database.");
             }
 
             var childProfile = new ChildProfile
@@ -42,8 +52,15 @@ namespace AutismEdu.API.Features.Patients.Create
             };
 
             var repo = _uow.GetRepository<ChildProfile>();
-            await repo.CreateAsync(childProfile);
-            await _uow.SaveChangesAsync();
+            try
+            {
+                await repo.CreateAsync(childProfile);
+                await _uow.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new ConflictException($"Failed to save patient: {ex.GetBaseException().Message}");
+            }
 
             // Send invite email if email is provided
             string message = "Patient created successfully.";
