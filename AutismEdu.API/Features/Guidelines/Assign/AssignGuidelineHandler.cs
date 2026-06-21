@@ -63,7 +63,7 @@ namespace AutismEdu.API.Features.Guidelines.Assign
                 AssignedAt = DateTime.UtcNow
             };
 
-            await childGuidelineRepo.AddAsync(childGuideline);
+            await childGuidelineRepo.CreateAsync(childGuideline);
             await _uow.SaveChangesAsync();
 
             return new AssignGuidelineResult
