@@ -110,8 +110,7 @@ AutismEdu.API/
 │   │   ├── ChildActivity/           # Activity completion & scoring
 │   │   └── Children/                # Child profiles, assignments & guardians
 │   ├── Services/                    # External service implementations (Gemini, MailKit)
-│   ├── Program.cs                   # Dependency injection & middleware pipeline
-│   └── appsettings.json             # Configuration template
+│   └── Program.cs                   # Dependency injection & middleware pipeline
 ├── AutismEdu.API.Tests/             # Unit and integration test suite
 │   ├── ChildAuthorizationServiceTests.cs
 │   └── AutismEdu.API.Tests.csproj
@@ -125,9 +124,8 @@ AutismEdu.API/
 ### Prerequisites
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (LocalDB, Express, or Docker container)
-- Google Gemini API Key
 
-### Installation
+### Installation & Run
 
 1. **Clone the repository:**
    ```bash
@@ -135,44 +133,19 @@ AutismEdu.API/
    cd AutismEdu.API
    ```
 
-2. **Configure Environment Variables:**
-   Update `AutismEdu.API/appsettings.json` with your local connection string and Gemini credentials:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=AutismEduDb;Trusted_Connection=True;TrustServerCertificate=True;"
-     },
-     "Jwt": {
-       "Key": "your-jwt-secret-key-at-least-32-characters-long",
-       "Issuer": "AutismEduAPI",
-       "Audience": "AutismEduClients",
-       "DurationInMinutes": 60
-     },
-     "Gemini": {
-       "ApiKey": "YOUR_GEMINI_API_KEY_HERE"
-     },
-     "MailSettings": {
-       "Email": "noreply@autismedu.com",
-       "DisplayName": "AutismEdu Platform",
-       "Host": "smtp.gmail.com",
-       "Port": 587,
-       "Password": "YOUR_APP_SPECIFIC_PASSWORD"
-     }
-   }
-   ```
-
-3. **Apply Database Migrations:**
+2. **Restore Dependencies & Build:**
    ```bash
-   dotnet ef database update --project AutismEdu.API
+   dotnet restore
+   dotnet build
    ```
 
-4. **Run the Application:**
+3. **Run the Application:**
    ```bash
    dotnet run --project AutismEdu.API
    ```
    Navigate to `http://localhost:5000/swagger` to explore the interactive OpenAPI documentation.
 
-5. **Run the Tests:**
+4. **Run the Tests:**
    ```bash
    dotnet test
    ```
